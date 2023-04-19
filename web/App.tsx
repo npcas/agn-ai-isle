@@ -11,6 +11,7 @@ import ProfilePage from './pages/Profile'
 import UsersPage from './pages/Admin/UsersPage'
 import { InvitesPage } from './pages/Invite/InvitesPage'
 import HomePage from './pages/Home'
+import IslePage from './pages/Isle'
 import Navigation from './Navigation'
 import GenerationPresetsPage from './pages/GenerationPresets'
 import CharacterChats from './pages/Character/ChatList'
@@ -65,6 +66,7 @@ const App: Component = () => {
                 <Route path="/settings" component={Settings} />
                 <Route path="/memory" component={MemoryPage} />
                 <Route path="/memory/:id" component={EditMemoryPage} />
+                <Route path="/isle" component={IslePage} />
                 <Show when={state.loggedIn}>
                   <Route path="/invites" component={InvitesPage} />
                   <Show when={state.user?.admin}>
