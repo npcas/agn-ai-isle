@@ -5,8 +5,6 @@ import { getMemoryPrompt, MemoryPrompt, MEMORY_PREFIX } from './memory'
 import { defaultPresets, getFallbackPreset, isDefaultPreset } from './presets'
 import { Encoder, getEncoder } from './tokenize'
 
-const DEFAULT_MAX_TOKENS = 2048
-
 export type Prompt = {
   prompt: string
   lines: string[]
@@ -138,7 +136,14 @@ export function buildPrompt(
 
   const maxContext = getContextLimit(opts.settings, adapter, model)
 
-  const history = fillPromptWithLines(encoder, maxContext, pre + '\n' + post, lines).reverse()
+  const preamble = pre.join('\n').replace(BOT_REPLACE, char.name).replace(SELF_REPLACE, sender)
+  const postamble = parts.post.join('\n')
+  const history = fillPromptWithLines(
+    encoder,
+    maxContext,
+    preamble + '\n' + postamble,
+    lines
+  ).reverse()
 
   /**
    * TODO: This is doubling up on memory a fair bit
@@ -146,8 +151,6 @@ export function buildPrompt(
    * However the prompt re-ordering should probably occur earlier
    */
 
-  const preamble = pre.join('\n').replace(BOT_REPLACE, char.name).replace(SELF_REPLACE, sender)
-  const postamble = parts.post.join('\n')
   const prompt = [preamble, ...history, postamble].filter(removeEmpty).join('\n')
 
   return {
@@ -493,7 +496,8 @@ function getContextLimit(
       return Math.min(2048, configuredMax) - genAmount
 
     case 'openai': {
-      if (!model || model === OPENAI_MODELS.Turbo || model === OPENAI_MODELS.DaVinci) return 4096
+      if (!model || model === OPENAI_MODELS.Turbo || model === OPENAI_MODELS.DaVinci)
+        return 4096 - genAmount
       return configuredMax - genAmount
     }
 
