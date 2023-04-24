@@ -87,7 +87,7 @@ const UserNavigation: Component = () => {
         <MailPlus /> Invites <InviteBadge />
       </Item>
       <Item href="/isle">
-        <Palmtree /> Isle
+        <Palmtree /> Neverland
       </Item>
       <Item href="/settings">
         <Settings /> Settings

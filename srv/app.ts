@@ -7,6 +7,7 @@ import { resolve } from 'path'
 import { Server } from 'http'
 import { setupSockets } from './api/ws'
 import { config } from './config'
+import { Isle } from './isle'
 
 const app = express()
 const server = new Server(app)
@@ -16,6 +17,9 @@ const baseFolder = resolve(__dirname, '..')
 setupSockets(server)
 
 const index = resolve(baseFolder, 'dist', 'index.html')
+
+const isle = new Isle();
+isle.attach('AgnAI-Isle@testnet.ergo.chat');
 
 app.use(
   express.json({ limit: `${config.limits.payload}mb` }),
