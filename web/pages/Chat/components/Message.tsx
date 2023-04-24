@@ -1,5 +1,4 @@
 import { Check, Pencil, RefreshCw, Terminal, ThumbsDown, ThumbsUp, Trash, X } from 'lucide-solid'
-import showdown from 'showdown'
 import { Component, createMemo, createSignal, For, Show } from 'solid-js'
 import { BOT_REPLACE, SELF_REPLACE } from '../../../../common/prompt'
 import { AppSchema } from '../../../../srv/db/schema'
@@ -7,11 +6,7 @@ import AvatarIcon from '../../../shared/AvatarIcon'
 import { getAssetUrl, getRootVariable, hexToRgb } from '../../../shared/util'
 import { chatStore, userStore } from '../../../store'
 import { msgStore } from '../../../store'
-
-const showdownConverter = new showdown.Converter()
-// Ensure single newlines are turned into <br> instead of left as plaintext
-// newlines and hence not rendered
-showdownConverter.setOption('simpleLineBreaks', true)
+import { markdown } from '../../../shared/markdown'
 
 type MessageProps = {
   msg: SplitMessage
@@ -161,7 +156,7 @@ const SingleMessage: Component<
         <div class="flex w-full flex-row justify-between">
           <div class="flex flex-col items-start gap-1 sm:flex-row sm:items-end sm:gap-0">
             <b
-              class="text-900 mr-2 text-lg leading-none"
+              class="text-900 mr-2 max-w-[200px] overflow-hidden text-ellipsis  whitespace-nowrap text-lg leading-none sm:max-w-[400px]"
               data-bot-name={isBot()}
               data-user-name={isUser()}
             >
@@ -256,7 +251,7 @@ const SingleMessage: Component<
               class="rendered-markdown pr-1 sm:pr-3"
               data-bot-message={isBot()}
               data-user-message={isUser()}
-              innerHTML={showdownConverter.makeHtml(
+              innerHTML={markdown.makeHtml(
                 parseMessage(msgText(), props.char!, user.profile!, props.msg.adapter)
               )}
             />

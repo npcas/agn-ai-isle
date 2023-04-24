@@ -132,15 +132,15 @@ export function toDuration(valueSecs: number | Date, full?: boolean) {
   }
 
   if (days) {
-    return `${days} days`
+    return `${days} day${days > 1 ? 's' : ''}`
   }
 
   if (hours) {
-    return `${hours} hours`
+    return `${hours} hour${hours > 1 ? 's' : ''}`
   }
 
   if (minutes) {
-    return `${minutes} mins`
+    return `${minutes} min${minutes > 1 ? 's' : ''}`
   }
 
   return `${seconds} seconds`
@@ -251,4 +251,19 @@ export function hexToRgb(hex: string) {
 export function getRootRgb(name: string) {
   const value = getRootVariable(name)
   return hexToRgb(value)!
+}
+
+export function toMap<T extends { _id: string }>(list: T[]): Record<string, T> {
+  const map = list.reduce((prev, curr) => Object.assign(prev, { [curr._id]: curr }), {})
+  return map
+}
+
+/**
+ * Ascending by default
+ * @param prop
+ * @param dir
+ */
+export function sort<T>(prop: keyof T, dir?: 'asc' | 'desc') {
+  const mod = dir === 'asc' ? 1 : -1
+  return (l: T, r: T) => (l[prop] > r[prop] ? mod : l[prop] === r[prop] ? 0 : -mod)
 }
