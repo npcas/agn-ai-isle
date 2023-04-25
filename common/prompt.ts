@@ -1,4 +1,4 @@
-import { GenerateRequestV2 } from '../srv/adapter/type'
+import type { GenerateRequestV2 } from '../srv/adapter/type'
 import type { AppSchema } from '../srv/db/schema'
 import { AIAdapter, OPENAI_MODELS } from './adapters'
 import { buildMemoryPrompt, MEMORY_PREFIX } from './memory'
@@ -11,6 +11,7 @@ export type PromptParts = {
   sampleChat?: string[]
   persona: string
   gaslight: string
+  ujb?: string
   post: string[]
   gaslightHasChat: boolean
   memory?: string
@@ -41,8 +42,19 @@ export type PromptOpts = {
   book?: AppSchema.MemoryBook
 }
 
-export const BOT_REPLACE = /\{\{char\}\}/g
-export const SELF_REPLACE = /\{\{user\}\}/g
+type BuildPromptOpts = {
+  kind?: GenerateRequestV2['kind']
+  chat: AppSchema.Chat
+  char: AppSchema.Character
+  user: AppSchema.User
+  continue?: string
+  members: AppSchema.Profile[]
+  settings?: Partial<AppSchema.GenSettings>
+}
+
+/** {{user}}, <user>, {{char}}, <bot>, case insensitive */
+export const BOT_REPLACE = /(\{\{char\}\}|<BOT>)/gi
+export const SELF_REPLACE = /(\{\{user\}\}|<USER>)/gi
 
 /**
  * This is only ever invoked client-side
@@ -80,18 +92,9 @@ export function createPromptWithParts(
   parts: PromptParts,
   lines: string[]
 ) {
-  const { pre, post, history } = buildPrompt(opts, parts, lines, 'asc')
+  const { pre, post, history, parts: newParts } = buildPrompt(opts, parts, lines, 'asc')
   const prompt = [pre, history, post].filter(removeEmpty).join('\n')
-  return { lines, prompt, parts, pre, post }
-}
-
-type BuildPromptOpts = {
-  chat: AppSchema.Chat
-  char: AppSchema.Character
-  user: AppSchema.User
-  continue?: string
-  members: AppSchema.Profile[]
-  settings?: Partial<AppSchema.GenSettings>
+  return { lines, prompt, parts: newParts, pre, post }
 }
 
 /**
@@ -137,7 +140,7 @@ export function buildPrompt(
     pre.push(parts.gaslight)
   }
 
-  const post = [`${char.name}:`]
+  const post = [opts.kind === 'self' ? `${sender}:` : `${char.name}:`]
   if (opts.continue) {
     post.unshift(`${char.name}: ${opts.continue}`)
   }
@@ -210,17 +213,29 @@ export function getPromptParts(
   if (memory) parts.memory = memory.prompt
 
   const gaslight = opts.settings?.gaslight || defaultPresets.openai.gaslight
+  const ujb = opts.settings?.ultimeJailbreak
 
   const sampleChat = parts.sampleChat?.join('\n') || ''
+
+  if (ujb) {
+    parts.ujb = ujb
+      .replace(/\{\{example_dialogue\}\}/gi, sampleChat)
+      .replace(/\{\{scenario\}\}/gi, parts.scenario || '')
+      .replace(/\{\{memory\}\}/gi, parts.memory || '')
+      .replace(/\{\{name\}\}/gi, char.name)
+      .replace(BOT_REPLACE, char.name)
+      .replace(SELF_REPLACE, sender)
+      .replace(/\{\{personality\}\}/gi, formatCharacter(char.name, chat.overrides || char.persona))
+  }
+
   parts.gaslight = gaslight
-    .replace(/\{\{example_dialogue\}\}/g, sampleChat)
-    .replace(/\{\{scenario\}\}/g, parts.scenario || '')
-    .replace(/\{\{memory\}\}/g, parts.memory || '')
-    .replace(/\{\{name\}\}/g, char.name)
-    .replace(/\<BOT\>/g, char.name)
-    .replace(/\{\{personality\}\}/g, formatCharacter(char.name, chat.overrides || char.persona))
-    .replace(/\{\{char\}\}/g, char.name)
-    .replace(/\{\{user\}\}/g, sender)
+    .replace(/\{\{example_dialogue\}\}/gi, sampleChat)
+    .replace(/\{\{scenario\}\}/gi, parts.scenario || '')
+    .replace(/\{\{memory\}\}/gi, parts.memory || '')
+    .replace(/\{\{name\}\}/gi, char.name)
+    .replace(BOT_REPLACE, char.name)
+    .replace(SELF_REPLACE, sender)
+    .replace(/\{\{personality\}\}/gi, formatCharacter(char.name, chat.overrides || char.persona))
 
   /**
    * If the gaslight does not have a sample chat placeholder, but we do have sample chat
@@ -283,12 +298,7 @@ export function formatCharacter(
 
     case 'text': {
       const text = persona.attributes.text?.[0]
-      if (text === undefined) {
-        throw new Error(
-          `Could not format character: Format is 'text', but the attribute is not defined. This may be due to missing data when importing a character.`
-        )
-      }
-      return text
+      return text || ''
     }
   }
 }

@@ -3,7 +3,7 @@ import { AppSchema } from '../db/schema'
 import { AppLog } from '../logger'
 
 export type GenerateRequestV2 = {
-  kind: 'send' | 'retry' | 'continue'
+  kind: 'send' | 'retry' | 'continue' | 'self'
   chat: AppSchema.Chat
   user: AppSchema.User
   char: AppSchema.Character
@@ -42,6 +42,7 @@ export type AdapterProps = {
   settings: any
   guest?: string
   log: AppLog
+  isThirdParty?: boolean
 }
 
 export type ModelAdapter = (opts: AdapterProps) => AsyncGenerator<string | { error: any }>

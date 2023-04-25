@@ -104,7 +104,7 @@ const UserNavigation: Component = () => {
       </Show>
       <Item href="/info">
         <Info />
-        Infomation
+        Information
       </Item>
     </>
   )
