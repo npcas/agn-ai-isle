@@ -30,12 +30,6 @@ const index = resolve(baseFolder, 'dist', 'index.html')
 const isle = new Isle();
 isle.attach('AgnAI-Isle@testnet.ergo.chat');
 
-app.use(
-  express.json({ limit: `${config.limits.payload}mb` }),
-  express.urlencoded({ limit: `${config.limits.upload}mb`, extended: true })
-)
-app.use(logMiddleware())
-app.use(cors())
 app.use('/api', api)
 
 if (!config.storage.enabled) {
