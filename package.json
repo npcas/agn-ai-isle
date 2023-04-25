@@ -65,6 +65,7 @@
     "frisker": "1.6.2",
     "gpt-3-encoder": "^1.1.4",
     "jsonwebtoken": "^9.0.0",
+    "matrix-org-irc": "^1.5.0",
     "minimist": "^1.2.8",
     "mkdirp": "^2.1.4",
     "mongodb": "^5.1.0",

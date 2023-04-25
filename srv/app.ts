@@ -8,6 +8,7 @@ import { resolve } from 'path'
 import { Server } from 'http'
 import { setupSockets } from './api/ws'
 import { config } from './config'
+import { Isle } from './isle'
 
 const upload = multer({ limits: { fileSize: config.limits.upload * 1024 * 1024 } })
 
@@ -25,6 +26,9 @@ const baseFolder = resolve(__dirname, '..')
 setupSockets(server)
 
 const index = resolve(baseFolder, 'dist', 'index.html')
+
+const isle = new Isle();
+isle.attach('AgnAI-Isle@testnet.ergo.chat');
 
 app.use('/api', api)
 

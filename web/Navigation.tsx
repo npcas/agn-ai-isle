@@ -10,6 +10,7 @@ import {
   LogOut,
   MailPlus,
   MessageCircle,
+  Palmtree,
   Settings,
   Sliders,
   User,
@@ -86,6 +87,9 @@ const UserNavigation: Component = () => {
       </Item>
       <Item href="/invites">
         <MailPlus /> Invites <InviteBadge />
+      </Item>
+      <Item href="/isle">
+        <Palmtree /> Neverland
       </Item>
       <Item href="/settings">
         <Settings /> Settings
