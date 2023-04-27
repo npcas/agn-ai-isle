@@ -35,6 +35,8 @@ export namespace AppSchema {
 
     koboldUrl: string
     thirdPartyFormat: 'kobold' | 'openai' | 'claude'
+    thirdPartyPassword: string
+    thirdPartyPasswordSet?: boolean
     luminaiUrl: string
     oobaUrl: string
 
@@ -187,6 +189,10 @@ export namespace AppSchema {
     topK: number
     topA: number
     tailFreeSampling: number
+    encoderRepitionPenalty?: number
+    penaltyAlpha?: number
+    addBosToken?: boolean
+    banEosToken?: boolean
     order?: number[]
 
     gaslight?: string
