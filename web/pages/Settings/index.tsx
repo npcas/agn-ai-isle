@@ -40,6 +40,8 @@ const Settings: Component = () => {
     const body = getStrictForm(evt, {
       koboldUrl: 'string?',
       thirdPartyFormat: ['kobold', 'openai', 'claude'],
+      oobaUrl: 'string?',
+      thirdPartyPassword: 'string?',
       novelApiKey: 'string?',
       novelModel: 'string?',
       hordeUseTrusted: 'boolean?',
@@ -51,6 +53,7 @@ const Settings: Component = () => {
       scaleUrl: 'string?',
       claudeApiKey: 'string?',
       defaultAdapter: adapterOptions,
+      logPromptsToBrowserConsole: 'boolean?',
 
       imageType: ['horde', 'sd', 'novel'],
       imageSteps: 'number',
