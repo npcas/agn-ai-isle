@@ -51,6 +51,14 @@ export const deleteClaudeKey = handle(async ({ userId }) => {
   return { success: true }
 })
 
+export const deleteThirdPartyPassword = handle(async ({ userId }) => {
+  await store.users.updateUser(userId!, {
+    thirdPartyPassword: '',
+  })
+
+  return { success: true }
+})
+
 export const deleteHordeKey = handle(async ({ userId }) => {
   await store.users.updateUser(userId!, {
     hordeKey: '',
@@ -84,7 +92,9 @@ export const updateConfig = handle(async ({ userId, body }) => {
       novelModel: 'string?',
       koboldUrl: 'string?',
       thirdPartyFormat: 'string?',
+      thirdPartyPassword: 'string?',
       hordeUseTrusted: 'boolean?',
+      oobaUrl: 'string?',
       hordeApiKey: 'string?',
       hordeKey: 'string?',
       hordeModel: 'string?',
@@ -146,6 +156,8 @@ export const updateConfig = handle(async ({ userId, body }) => {
     update.thirdPartyFormat = body.thirdPartyFormat as typeof update.thirdPartyFormat
   }
 
+  const validOobaUrl = await verifyOobaUrl(prevUser, body.oobaUrl)
+  if (validOobaUrl !== undefined) update.oobaUrl = validOobaUrl
   if (body.luminaiUrl !== undefined) update.luminaiUrl = body.luminaiUrl
 
   if (body.images) {
@@ -182,6 +194,10 @@ export const updateConfig = handle(async ({ userId, body }) => {
 
   if (body.claudeApiKey) {
     update.claudeApiKey = encryptText(body.claudeApiKey)
+  }
+
+  if (body.thirdPartyPassword) {
+    update.thirdPartyPassword = encryptText(body.thirdPartyPassword)
   }
 
   await store.users.updateUser(userId!, update)
@@ -239,6 +255,20 @@ async function verifyKobldUrl(user: AppSchema.User, incomingUrl?: string) {
   return url[0]
 }
 
+async function verifyOobaUrl(user: AppSchema.User, incomingUrl?: string) {
+  if (!incomingUrl) return incomingUrl
+  if (user.oobaUrl === incomingUrl) return
+
+  const url = incomingUrl.match(/(http(s{0,1})\:\/\/)([a-z0-9\.\-]+)(\:[0-9]+){0,1}/gm)
+
+  if (!url || !url[0]) {
+    throw new StatusError(
+      `Ooba URL provided could not be verified: Invalid URL format. Use a fully qualified URL, e.g.: http://127.0.0.1:7860`,
+      400
+    )
+  }
+  return url[0]
+}
 async function verifyNovelKey(key: string) {
   const res = await needle('get', `${NOVEL_BASEURL}/user/data`, {
     headers: { Authorization: `Bearer ${key}` },
@@ -268,6 +298,11 @@ async function getSafeUserConfig(userId: string) {
     if (user.claudeApiKey) {
       user.claudeApiKey = ''
       user.claudeApiKeySet = true
+    }
+
+    if (user.thirdPartyPassword) {
+      user.thirdPartyPassword = ''
+      user.thirdPartyPasswordSet = true
     }
   }
   return user
