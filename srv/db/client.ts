@@ -67,4 +67,7 @@ export async function createIndexes() {
   await db('memory').createIndex({ userId: 1 }, { name: 'memory_userId' })
   await db('gen-setting').createIndex({ userId: 1 }, { name: 'gen-setting_userId' })
   await db('chat-message').createIndex({ chatId: 1 }, { name: 'chatmessages_chatId' })
+  await db('irc-server').createIndex({ hostName: 1 }, { unique: true, name: 'irc-server_hostName' })
+  await db('insular').createIndex({ hostName: 1, nickName: 1 }, { unique: true, name: 'insular_hostName-nickName' })
+  await db('tutelar').createIndex({ hostName: 1, nickName: 1, userId: 1 }, { unique: true, name: 'tutelar_hostName-nickName-userId' })
 }

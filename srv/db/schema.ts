@@ -2,6 +2,7 @@ import { AIAdapter, ChatAdapter, PersonaFormat } from '../../common/adapters'
 import { ImageAdapter } from '../../common/image'
 import { GenerationPreset } from '../../common/presets'
 import { ImageSettings } from './image-schema'
+import { IrcClientOpts } from 'matrix-org-irc'
 
 export namespace AppSchema {
   export interface Token {
@@ -244,6 +245,32 @@ export namespace AppSchema {
 
     enabled: boolean
   }
+
+  export interface IrcServer {
+    kind: 'irc-server'
+    hostName: string
+    options?: IrcClientOpts
+    channelWhitelist?: string[]
+    parentRole?: string
+    publicRole?: string
+  }
+
+  export interface Insular {
+    kind: 'insular'
+    hostName: string
+    nickName: string
+    options?: IrcClientOpts
+    channelWhitelist?: string[]
+    publicRole?: string
+  }
+
+  export interface Tutelar {
+    kind: 'tutelar'
+    hostName: string
+    nickName: string
+    userId: string
+    role: string
+  }
 }
 
 export type Doc<T extends AllDoc['kind'] = AllDoc['kind']> = Extract<AllDoc, { kind: T }>
@@ -259,6 +286,9 @@ export type AllDoc =
   | AppSchema.ChatInvite
   | AppSchema.UserGenPreset
   | AppSchema.MemoryBook
+  | AppSchema.IrcServer
+  | AppSchema.Insular
+  | AppSchema.Tutelar
 
 export const defaultGenPresets: AppSchema.GenSettings[] = []
 

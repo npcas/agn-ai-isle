@@ -5,11 +5,11 @@ interface IrcServerOpts {
     nickWhitelist?: Set<string>;
 }
 
-export class Isleman {
+export class Insular {
     static admin?: string;
 
     static readonly #servers = new Map<string, IrcServerOpts>();
-    static readonly #instances = new Map<string, Isleman>();
+    static readonly #instances = new Map<string, Insular>();
 
     static init() {
         this.#servers.set('testnet.ergo.chat', {});
@@ -27,10 +27,10 @@ export class Isleman {
         user: string
     ) {
         // TODO: populate this.#users, this.#ico and this.#disabled from database
-        
+
     }
 
-    static possess(server: string, nick: string, user: string): Isleman {
+    static possess(server: string, nick: string, user: string): Insular {
         const auth = nick + '@' + server;
         let pawn = this.#instances.get(auth);
 
@@ -50,7 +50,7 @@ export class Isleman {
 
     hookup(user: string) {
         if (this.#uplink) throw 'Already online.';
-        const ico: IrcClientOpts = Object.assign({}, Isleman.#servers.get(this.server)?.ico, this.#ico);
+        const ico: IrcClientOpts = Object.assign({}, Insular.#servers.get(this.server)?.ico, this.#ico);
         this.#uplink = new Client(this.server, this.nick, ico);
 
         this.#uplink.once('registered', () => {
